@@ -179,6 +179,8 @@ class Client implements ClientInterface
         if ($response) {
             if ($response->data) {
                 $data = substr($response->data, 5);
+            } else {
+                $data = '';
             }
             $trailers = ['grpc-status' => $response->headers['grpc-status'] ?? '0', 'grpc-message' => $response->headers['grpc-message'] ?? ''];
 
