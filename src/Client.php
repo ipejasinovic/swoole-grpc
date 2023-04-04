@@ -163,9 +163,9 @@ class Client implements ClientInterface
     private function recvData()
     {
         if ($this->mode === Constant::GRPC_CALL) {
-            $response = $this->client->recv(30);
+            $response = $this->client->recv($this->settings['timeout'] * $this->settings['max_retries']);
         } else {
-            $response = $this->client->read(30);
+            $response = $this->client->read($this->settings['timeout'] * $this->settings['max_retries']);
         }
         
         if (!$response) {
