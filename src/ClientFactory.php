@@ -11,8 +11,8 @@ namespace OpenSwoole\GRPC;
 
 final class ClientFactory
 {
-    public static function make($host, $port)
+    public static function make($host, $port, $settings = [])
     {
-        return new Client($host, $port);
+        return new Client($host, $port, Constant::GRPC_CALL, $settings);
     }
 }

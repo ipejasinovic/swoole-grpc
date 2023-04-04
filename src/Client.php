@@ -30,13 +30,14 @@ class Client implements ClientInterface
         'max_retries'                  => 10,
     ];
 
-    public function __construct($host, $port, $mode = Constant::GRPC_CALL)
+    public function __construct($host, $port, $mode = Constant::GRPC_CALL, $settings = [])
     {
         $client = new \Swoole\Coroutine\Http2\Client($host, $port);
         // TODO: clientInterceptors
         $this->client  = $client;
         $this->streams = [];
         $this->mode    = $mode;
+        $this->settings = array_merge($this->settings, $settings);
         return $this;
     }
 

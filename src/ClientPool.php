@@ -24,13 +24,16 @@ class ClientPool
     private $factory;
 
     private $config;
+    
+    private $settings;
 
-    public function __construct($factory, $config, int $size = self::DEFAULT_SIZE)
+    public function __construct($factory, $config, int $size = self::DEFAULT_SIZE, $settings = [])
     {
         $this->pool    = new \Swoole\Coroutine\Channel($this->size = $size);
         $this->num     = 0;
         $this->factory = $factory;
         $this->config  = $config;
+        $this->settings = $settings;
     }
 
     public function fill(): void
@@ -94,7 +97,7 @@ class ClientPool
     protected function make()
     {
         $this->num++;
-        $client = $this->factory::make($this->config['host'], $this->config['port'])->connect();
+        $client = $this->factory::make($this->config['host'], $this->config['port'], $this->settings)->connect();
         $this->put($client, true);
     }
 }
