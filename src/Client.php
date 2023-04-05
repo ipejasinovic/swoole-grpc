@@ -30,6 +30,7 @@ class Client implements ClientInterface {
 		'force_reconnect' => false,
 		'receive_timeout' => -1
 	];
+	private $forced_reconnect = false;
 
 	public function __construct($host, $port, $mode = Constant::GRPC_CALL, $settings = []) {
 		// TODO: clientInterceptors
@@ -97,18 +98,27 @@ class Client implements ClientInterface {
 			$streamId = $this->sendMessage($method, $message, $type);
 			if ($streamId && $streamId > 0) {
 				$this->streams[$streamId] = [new \Swoole\Coroutine\Channel(1), $isEndStream];
+				$this->forced_reconnect = false;
 				return $streamId;
 			}
 			if ($this->client->errCode > 0) {
-				if (in_array($this->client->errCode, [32, 111, 5001]) && $this->settings['force_reconnect']) {
+				if (in_array($this->client->errCode, [32, 111, 5001]) && $this->settings['force_reconnect'] && $retry < $this->settings['max_retries']) {
+					if ($this->forced_reconnect) {
+						\Swoole\Coroutine::sleep(0.01);
+						continue;
+					}
 					$this->client->close();
 					$this->client->connect();
+					$this->forced_reconnect = true;
+					\Swoole\Coroutine::sleep(0.1);
 					continue;
 				}
+				$this->forced_reconnect = false;
 				throw new ClientException(swoole_strerror($this->client->errCode, 9) . " {$this->client->host}:{$this->client->port}", $this->client->errCode);
 			}
-			\Swoole\Coroutine::usleep(10000);
+			\Swoole\Coroutine::sleep(0.01);
 		}
+		$this->forced_reconnect = false;
 		return false;
 	}
 
