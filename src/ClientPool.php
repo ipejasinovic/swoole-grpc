@@ -22,7 +22,8 @@ class ClientPool {
 	private $config;
 	private $settings = [
 		'force_reconnect' => false,
-		'receive_timeout' => -1
+		'receive_timeout' => -1,
+		'force_recreate' => false
 	];
 
 	public function __construct($factory, $config, int $size = self::DEFAULT_SIZE, $settings = []) {
