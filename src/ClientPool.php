@@ -31,7 +31,9 @@ class ClientPool {
 		$this->num = 0;
 		$this->factory = $factory;
 		$this->config = $config;
-		$this->settings = $settings;
+		if (is_array($settings)) {
+			$this->settings = array_merge($this->settings, $settings);
+		}
 	}
 
 	public function fill(): void {
@@ -51,7 +53,7 @@ class ClientPool {
 				}
 			});
 		}
-		$conn = $this->pool->pop($this->settings['receive_timeout'] > -1 ? $this->settings['receive_timeout'] : $timeout);
+		$conn = $this->pool->pop((int) $this->settings['receive_timeout'] > -1 ? (int) $this->settings['receive_timeout'] : $timeout);
 		if ($conn) {
 			$this->used++;
 		}
